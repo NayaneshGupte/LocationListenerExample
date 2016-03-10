@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ShowMeDistance</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="latitude_label">Latitude</string>
+    <string name="longitude_label">Longitude</string>
+    <string name="last_update_time_label">Last location update time</string>
+    <string name="distance">Distance</string>
+
+
+    <string name="location_updated_message">Location updated</string>
+</resources>
