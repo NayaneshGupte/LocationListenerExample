@@ -24,8 +24,7 @@ import java.util.Date;
 /**
  * @author Nayanesh Gupte
  */
-public class LocationService extends Service implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ILocationConstants, IPreferenceConstants {
+public class LocationService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ILocationConstants, IPreferenceConstants {
 
 
     private static final String TAG = LocationService.class.getSimpleName();
@@ -64,7 +63,10 @@ public class LocationService extends Service implements
 
     private AppPreferences appPreferences;
 
-    private float dist;
+    /**
+     * Total distance covered
+     */
+    private float distance;
 
 
     @Override
@@ -89,9 +91,9 @@ public class LocationService extends Service implements
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        dist = appPreferences.getFloat(DISTANCE, 0);
+        distance = appPreferences.getFloat(DISTANCE, 0);
 
-        Log.d(TAG, "onStartCommand Distance " + dist);
+        Log.d(TAG, "onStartCommand Distance " + distance);
 
 
         buildGoogleApiClient();
@@ -158,9 +160,9 @@ public class LocationService extends Service implements
         String locationData = mLatitudeLabel + " " + +mCurrentLocation.getLatitude() + "\n"
                 + mLongitudeLabel + " " + mCurrentLocation.getLongitude() + "\n"
                 + mLastUpdateTimeLabel + " " + mLastUpdateTime + "\n"
-                + mDistance + " " + calculateDistance()+" meters";
+                + mDistance + " " + getUpdatedDistance() + " meters";
 
-        appPreferences.putFloat(DISTANCE, dist);
+        appPreferences.putFloat(DISTANCE, distance);
 
         Log.d(TAG, "Location Data:\n" + locationData);
 
@@ -190,9 +192,9 @@ public class LocationService extends Service implements
     @Override
     public void onDestroy() {
 
-        appPreferences.putFloat(DISTANCE, dist);
+        appPreferences.putFloat(DISTANCE, distance);
 
-        Log.d(TAG, "onDestroy Distance " + dist);
+        Log.d(TAG, "onDestroy Distance " + distance);
 
         stopLocationUpdates();
 
@@ -245,18 +247,17 @@ public class LocationService extends Service implements
     }
 
 
-    private float calculateDistance() {
+    private float getUpdatedDistance() {
 
         /**
          * There is 68% chance that user is with in 100m from this location.
          * So neglect location updates with poor accuracy
          */
 
-        Log.d(TAG, "Current location accuracy: " + mCurrentLocation.getAccuracy());
 
-        if (mCurrentLocation.getAccuracy() > 100) {
+        if (mCurrentLocation.getAccuracy() > ACCURACY_THRESHOLD) {
 
-            return dist;
+            return distance;
         }
 
 
@@ -268,7 +269,7 @@ public class LocationService extends Service implements
             newLocation.setLatitude(mCurrentLocation.getLatitude());
             newLocation.setLongitude(mCurrentLocation.getLongitude());
 
-            return dist;
+            return distance;
         } else {
 
             oldLocation.setLatitude(newLocation.getLatitude());
@@ -280,9 +281,12 @@ public class LocationService extends Service implements
         }
 
 
-        dist += newLocation.distanceTo(oldLocation);
+        /**
+         * Calculate distance between last two geo locations
+         */
+        distance += newLocation.distanceTo(oldLocation);
 
-        return dist;
+        return distance;
     }
 
 
