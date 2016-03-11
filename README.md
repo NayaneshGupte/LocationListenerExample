@@ -1,9 +1,13 @@
 # LocationListenerExample
 
+What this example does:
 
-This example runs STICKY service in the background contineously and calculate distance since the app is started. 
+1. Runs STICKY service in the background continuously and calculate distance since the app is started. 
 
-It also posts location updates to Activity using LocalBroadcastManager in case App is running in foreground.
+2. It posts location updates to Activity using LocalBroadcastManager in case App is running in foreground.
+
+3. Takes care of runtime permissions for Android - M
+
 
 
 Google Play Services for location updates using Fused (GPS + Network) Location Provider :
@@ -23,7 +27,17 @@ ADVANTAGE OF USING THIS API:
 4. Versatility: Meets a wide range of needs, from foreground uses that need highly accurate location to background uses that need periodic location updates with negligible power impact.
 
 
-Note : Make sure Google Play services is properly installed and working in our device. Please don’t test this location api in emulator because this api is not working in the emulator.
+Note : 
+
+1. Make sure Google Play services is properly installed and working in our device. Don’t test this Location API in emulator unless you are taking care of Google Play Services.
+
+2. Service keeps running continuously in background and there is NO breaking condition, so in case you install this app on your device you might want to get rid it soon for obvious reasons.
+
+
+
+Known Issues:
+
+Service class doesn't have onStop() callback and onDestroy() is not guaranteed. So have to be careful while saving any state.
 
 
 
