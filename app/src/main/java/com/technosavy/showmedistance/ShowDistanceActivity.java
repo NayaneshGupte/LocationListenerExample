@@ -108,7 +108,7 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
                             @Override
                             protected void call(int requestCode, String[] permissions, int[] grantResults) {
 
-                                if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                                if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 
                                     startLocationService();
 
