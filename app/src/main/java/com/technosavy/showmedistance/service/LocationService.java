@@ -86,7 +86,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
         mLastUpdateTime = "";
 
-        distance = appPreferences.getFloat(DISTANCE, 0);
+        distance = appPreferences.getFloat(PREF_DISTANCE, 0);
 
         Log.d(TAG, "onCreate Distance: " + distance);
 
@@ -160,28 +160,50 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
         if (null != mCurrentLocation) {
 
-            String locationData = mLatitudeLabel + " " + +mCurrentLocation.getLatitude() + "\n"
-                    + mLongitudeLabel + " " + mCurrentLocation.getLongitude() + "\n"
-                    + mLastUpdateTimeLabel + " " + mLastUpdateTime + "\n"
-                    + mDistance + " " + getUpdatedDistance() + " meters";
+            StringBuilder sbLocationData = new StringBuilder();
+            sbLocationData.append(mLatitudeLabel)
+                    .append(" ")
+                    .append(mCurrentLocation.getLatitude())
+                    .append("\n")
+                    .append(mLongitudeLabel)
+                    .append(" ")
+                    .append(mCurrentLocation.getLongitude())
+                    .append("\n")
+                    .append(mLastUpdateTimeLabel)
+                    .append(" ")
+                    .append(mLastUpdateTime)
+                    .append("\n")
+                    .append(mDistance)
+                    .append(" ")
+                    .append(getUpdatedDistance())
+                    .append(" meters");
 
-            appPreferences.putFloat(DISTANCE, distance);
 
-            Log.d(TAG, "Location Data:\n" + locationData);
+            /*
+             * update preference with latest value of distance
+             */
+            appPreferences.putFloat(PREF_DISTANCE, distance);
 
-            sendLocationBroadcast(locationData);
-        }else {
+            Log.d(TAG, "Location Data:\n" + sbLocationData.toString());
 
-            Toast.makeText(this, "Unable to find location",Toast.LENGTH_SHORT).show();
+            sendLocationBroadcast(sbLocationData.toString());
+        } else {
+
+            Toast.makeText(this, R.string.unable_to_find_location, Toast.LENGTH_SHORT).show();
         }
     }
 
 
-    private void sendLocationBroadcast(String location) {
+    /**
+     * Send broadcast using LocalBroadcastManager to update UI in activity
+     *
+     * @param sbLocationData
+     */
+    private void sendLocationBroadcast(String sbLocationData) {
 
         Intent locationIntent = new Intent();
         locationIntent.setAction(LOACTION_ACTION);
-        locationIntent.putExtra(LOCATION_MESSAGE, location);
+        locationIntent.putExtra(LOCATION_MESSAGE, sbLocationData);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(locationIntent);
 
@@ -199,13 +221,13 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     @Override
     public void onDestroy() {
 
-        appPreferences.putFloat(DISTANCE, distance);
-
-        Log.d(TAG, "onDestroy Distance " + distance);
+        appPreferences.putFloat(PREF_DISTANCE, distance);
 
         stopLocationUpdates();
 
         mGoogleApiClient.disconnect();
+
+        Log.d(TAG, "onDestroy Distance " + distance);
 
 
         super.onDestroy();

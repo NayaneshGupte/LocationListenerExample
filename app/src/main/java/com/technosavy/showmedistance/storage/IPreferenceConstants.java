@@ -5,10 +5,6 @@ package com.technosavy.showmedistance.storage;
  */
 public interface IPreferenceConstants {
 
-    String TOTAL_DISTANCE = "totaldistance";
-
-    String DISTANCE = "distance";
-
-
+    String PREF_DISTANCE = "distance";
 
 }

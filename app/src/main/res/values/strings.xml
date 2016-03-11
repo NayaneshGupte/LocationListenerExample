@@ -10,4 +10,5 @@
 
     <string name="location_updated_message">Location updated</string>
     <string name="permission_denied">Permissions Denied!</string>
+    <string name="unable_to_find_location">Unable to find location</string>
 </resources>

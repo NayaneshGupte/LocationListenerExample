@@ -40,8 +40,16 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
     Toolbar toolbar;
 
 
+    /**
+     * Receiver listening to Location updates and updating UI in activity
+     */
     private LocationReceiver locationReceiver;
 
+    /**
+     * Permission util with callback mechanism to avoid boilerplate code
+     * <p/>
+     * https://github.com/kayvannj/PermissionUtil
+     */
     private PermissionUtil.PermissionRequestObject mBothPermissionRequest;
 
 
@@ -51,8 +59,8 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
         setContentView(R.layout.activity_show_distance);
 
         ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
 
+        setSupportActionBar(toolbar);
 
         locationReceiver = new LocationReceiver();
 
@@ -74,8 +82,11 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
         LocalBroadcastManager.getInstance(this).registerReceiver(locationReceiver, new IntentFilter(LOACTION_ACTION));
 
 
+        /**
+         * Runtime permissions are required on Android M and above to access User's location
+         */
         if (AppUtils.hasM() && !(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
 
             askPermissions();
 
@@ -87,7 +98,9 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
 
     }
 
-
+    /**
+     * Ask user for permissions to access GPS location on Android M
+     */
     public void askPermissions() {
         mBothPermissionRequest =
                 PermissionUtil.with(this).request(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION).onResult(
@@ -138,7 +151,7 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
-        if (mBothPermissionRequest != null) {
+        if (null != mBothPermissionRequest) {
             mBothPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
