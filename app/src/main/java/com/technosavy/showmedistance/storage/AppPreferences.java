@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author nayanesh
+ * @author Nayanesh Gupte
  */
 public class AppPreferences {
 

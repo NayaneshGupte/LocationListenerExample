@@ -26,14 +26,8 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
     protected static final String TAG = ShowDistanceActivity.class.getSimpleName();
 
 
-    @Bind(R.id.last_update_time_text)
-    TextView mLastUpdateTimeTextView;
-
-    @Bind(R.id.latitude_text)
-    TextView mLatitudeTextView;
-
-    @Bind(R.id.longitude_text)
-    TextView mLongitudeTextView;
+    @Bind(R.id.tvLocationData)
+    TextView tvLocationData;
 
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -93,7 +87,7 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
 
                 String locationData = intent.getStringExtra(LOCATION_MESSAGE);
 
-                mLatitudeTextView.setText(locationData);
+                tvLocationData.setText(locationData);
             }
 
         }

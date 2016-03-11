@@ -21,6 +21,9 @@ import com.technosavy.showmedistance.storage.IPreferenceConstants;
 import java.text.DateFormat;
 import java.util.Date;
 
+/**
+ * @author Nayanesh Gupte
+ */
 public class LocationService extends Service implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ILocationConstants, IPreferenceConstants {
 
@@ -80,13 +83,15 @@ public class LocationService extends Service implements
 
         mLastUpdateTime = "";
 
-        dist = appPreferences.getFloat(DISTANCE, 0);
-
 
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        dist = appPreferences.getFloat(DISTANCE, 0);
+
+        Log.d(TAG, "onStartCommand Distance " + dist);
 
 
         buildGoogleApiClient();
@@ -150,18 +155,14 @@ public class LocationService extends Service implements
      */
     private void updateUI() {
 
-        Log.d(TAG, String.format("%s: %f", mLatitudeLabel, mCurrentLocation.getLatitude()));
-
-
-        Log.d(TAG, String.format("%s: %f", mLongitudeLabel, mCurrentLocation.getLongitude()));
-
-
-        Log.d(TAG, String.format("%s: %s", mLastUpdateTimeLabel, mLastUpdateTime));
-
         String locationData = mLatitudeLabel + " " + +mCurrentLocation.getLatitude() + "\n"
                 + mLongitudeLabel + " " + mCurrentLocation.getLongitude() + "\n"
                 + mLastUpdateTimeLabel + " " + mLastUpdateTime + "\n"
-                + mDistance + " " + calculateDistance();
+                + mDistance + " " + calculateDistance()+" meters";
+
+        appPreferences.putFloat(DISTANCE, dist);
+
+        Log.d(TAG, "Location Data:\n" + locationData);
 
         sendLocationBroadcast(locationData);
     }
@@ -191,6 +192,7 @@ public class LocationService extends Service implements
 
         appPreferences.putFloat(DISTANCE, dist);
 
+        Log.d(TAG, "onDestroy Distance " + dist);
 
         stopLocationUpdates();
 
@@ -245,6 +247,18 @@ public class LocationService extends Service implements
 
     private float calculateDistance() {
 
+        /**
+         * There is 68% chance that user is with in 100m from this location.
+         * So neglect location updates with poor accuracy
+         */
+
+        Log.d(TAG, "Current location accuracy: " + mCurrentLocation.getAccuracy());
+
+        if (mCurrentLocation.getAccuracy() > 100) {
+
+            return dist;
+        }
+
 
         if (oldLocation.getLatitude() == 0 && oldLocation.getLongitude() == 0) {
 
@@ -254,7 +268,7 @@ public class LocationService extends Service implements
             newLocation.setLatitude(mCurrentLocation.getLatitude());
             newLocation.setLongitude(mCurrentLocation.getLongitude());
 
-            return 0;
+            return dist;
         } else {
 
             oldLocation.setLatitude(newLocation.getLatitude());
@@ -265,9 +279,9 @@ public class LocationService extends Service implements
 
         }
 
+
         dist += newLocation.distanceTo(oldLocation);
 
-        Log.e(TAG, "calculateDistance " + dist);
         return dist;
     }
 
