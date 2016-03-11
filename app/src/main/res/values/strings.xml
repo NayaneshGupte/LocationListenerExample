@@ -9,4 +9,5 @@
 
 
     <string name="location_updated_message">Location updated</string>
+    <string name="permission_denied">Permissions Denied!</string>
 </resources>

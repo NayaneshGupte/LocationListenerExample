@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -85,15 +86,15 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
         mLastUpdateTime = "";
 
+        distance = appPreferences.getFloat(DISTANCE, 0);
+
+        Log.d(TAG, "onCreate Distance: " + distance);
+
 
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        distance = appPreferences.getFloat(DISTANCE, 0);
-
-        Log.d(TAG, "onStartCommand Distance " + distance);
 
 
         buildGoogleApiClient();
@@ -157,16 +158,22 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
      */
     private void updateUI() {
 
-        String locationData = mLatitudeLabel + " " + +mCurrentLocation.getLatitude() + "\n"
-                + mLongitudeLabel + " " + mCurrentLocation.getLongitude() + "\n"
-                + mLastUpdateTimeLabel + " " + mLastUpdateTime + "\n"
-                + mDistance + " " + getUpdatedDistance() + " meters";
+        if (null != mCurrentLocation) {
 
-        appPreferences.putFloat(DISTANCE, distance);
+            String locationData = mLatitudeLabel + " " + +mCurrentLocation.getLatitude() + "\n"
+                    + mLongitudeLabel + " " + mCurrentLocation.getLongitude() + "\n"
+                    + mLastUpdateTimeLabel + " " + mLastUpdateTime + "\n"
+                    + mDistance + " " + getUpdatedDistance() + " meters";
 
-        Log.d(TAG, "Location Data:\n" + locationData);
+            appPreferences.putFloat(DISTANCE, distance);
 
-        sendLocationBroadcast(locationData);
+            Log.d(TAG, "Location Data:\n" + locationData);
+
+            sendLocationBroadcast(locationData);
+        }else {
+
+            Toast.makeText(this, "Unable to find location",Toast.LENGTH_SHORT).show();
+        }
     }
 
 

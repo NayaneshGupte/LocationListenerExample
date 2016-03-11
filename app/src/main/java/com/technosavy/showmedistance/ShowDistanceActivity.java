@@ -1,15 +1,22 @@
 package com.technosavy.showmedistance;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.github.kayvannj.permission_utils.Func2;
+import com.github.kayvannj.permission_utils.PermissionUtil;
+import com.technosavy.showmedistance.helper.AppUtils;
 import com.technosavy.showmedistance.helper.ILocationConstants;
 import com.technosavy.showmedistance.service.LocationService;
 
@@ -34,6 +41,8 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
 
 
     private LocationReceiver locationReceiver;
+
+    private PermissionUtil.PermissionRequestObject mBothPermissionRequest;
 
 
     @Override
@@ -64,10 +73,42 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
 
         LocalBroadcastManager.getInstance(this).registerReceiver(locationReceiver, new IntentFilter(LOACTION_ACTION));
 
-        startLocationService();
 
+        if (AppUtils.hasM() && !(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+
+            askPermissions();
+
+        } else {
+
+            startLocationService();
+
+        }
 
     }
+
+
+    public void askPermissions() {
+        mBothPermissionRequest =
+                PermissionUtil.with(this).request(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION).onResult(
+                        new Func2() {
+                            @Override
+                            protected void call(int requestCode, String[] permissions, int[] grantResults) {
+
+                                if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                                    startLocationService();
+
+                                } else {
+
+                                    Toast.makeText(ShowDistanceActivity.this, R.string.permission_denied, Toast.LENGTH_LONG).show();
+                                }
+                            }
+
+                        }).ask(PERMISSION_ACCESS_LOCATION_CODE);
+
+    }
+
 
     @Override
     protected void onStop() {
@@ -91,6 +132,16 @@ public class ShowDistanceActivity extends AppCompatActivity implements ILocation
             }
 
         }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        if (mBothPermissionRequest != null) {
+            mBothPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
 

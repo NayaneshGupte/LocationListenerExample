@@ -34,4 +34,7 @@ public interface ILocationConstants {
     String LOCATION_MESSAGE = "com.technosavy.showmedistance.LOCATION_DATA";
 
 
+    int PERMISSION_ACCESS_LOCATION_CODE = 99;
+
+
 }
